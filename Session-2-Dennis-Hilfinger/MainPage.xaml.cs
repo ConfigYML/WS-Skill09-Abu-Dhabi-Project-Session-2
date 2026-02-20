@@ -5,15 +5,14 @@ using Windows.Devices.AllJoyn;
 
 namespace Session_2_Dennis_Hilfinger
 {
-    public partial class MainPage : ContentPage
+    public partial class MainPage : ContentPage, IQueryAttributable
     {
         public ObservableCollection<FlightDTO> FlightList = new ObservableCollection<FlightDTO>();
         public MainPage()
         {
             InitializeComponent();
             BindingContext = this;
-            FillFilterData();
-            LoadData(null, null);
+            ApplyQueryAttributes(null);
         }
 
         private async void FillFilterData()
@@ -46,7 +45,7 @@ namespace Session_2_Dennis_Hilfinger
             {
                 string departure = DeparturePicker.SelectedItem.ToString();
                 string destination = DestinationPicker.SelectedItem.ToString();
-                DateOnly outboundDate;
+                DateOnly outboundDate = DateOnly.MinValue;
                 bool dateFilter = false;
 
                 int flightNumber;
@@ -92,42 +91,153 @@ namespace Session_2_Dennis_Hilfinger
                 }
 
                 FlightList.Clear();
-                if (departure != null || destination != null || dateFilter || hasFlightNumber)
+                if (!String.IsNullOrEmpty(departure) || !String.IsNullOrEmpty(destination) || dateFilter || hasFlightNumber)
                 {
                     var flights = db.Schedules
                         .Include(s => s.Route).ThenInclude(r => r.ArrivalAirport)
                         .Include(r => r.Route).ThenInclude(r => r.DepartureAirport);
-                    IQueryable filtered = flights.Where(f => f.Id != null);
-                    if (departure != null)
+                    IQueryable<Schedule> filtered = flights.Where(f => f.Id != null);
+
+                    if (!String.IsNullOrEmpty(departure))
                     {
-                        filtered = flights.Where(f => f.Route.DepartureAirport.Iatacode == departure)
+                        filtered = filtered.Where(f => f.Route.DepartureAirport.Iatacode == departure);
                     }
-                    
+                    if (!String.IsNullOrEmpty(destination))
+                    {
+                        filtered = filtered.Where(f => f.Route.ArrivalAirport.Iatacode == destination);
+                    }
+                    if (dateFilter)
+                    {
+                        filtered = filtered.Where(f => f.Date == outboundDate);
+                    }
+                    if (hasFlightNumber)
+                    {
+                        filtered = filtered.Where(f => f.FlightNumber.Contains(FlightNumberInput.Text));
+                    }
+
+                    foreach (var flight in filtered)
+                    {
+                        FlightList.Add(new FlightDTO
+                        {
+                            Id = flight.Id,
+                            FlightDate = flight.Date,
+                            FlightTime = flight.Time,
+                            DepartureAirport = flight.Route.DepartureAirport.Iatacode,
+                            DestinationAirport = flight.Route.ArrivalAirport.Iatacode,
+                            FlightNumber = int.Parse(flight.FlightNumber),
+                            Aircraft = flight.AircraftId,
+                            BasePrice = decimal.ToInt32(flight.EconomyPrice),
+                            Confirmed = flight.Confirmed
+                        });
+                    }
                 } else
                 {
-
+                    var flights = db.Schedules
+                        .Include(s => s.Route).ThenInclude(r => r.ArrivalAirport)
+                        .Include(r => r.Route).ThenInclude(r => r.DepartureAirport);
+                    foreach (var flight in flights)
+                    {
+                        FlightList.Add(new FlightDTO
+                        {
+                            Id = flight.Id,
+                            FlightDate = flight.Date,
+                            FlightTime = flight.Time,
+                            DepartureAirport = flight.Route.DepartureAirport.Iatacode,
+                            DestinationAirport = flight.Route.ArrivalAirport.Iatacode,
+                            FlightNumber = int.Parse(flight.FlightNumber),
+                            Aircraft = flight.AircraftId,
+                            BasePrice = decimal.ToInt32(flight.EconomyPrice),
+                            Confirmed = flight.Confirmed
+                        });
+                    }
                 }
-                FlightGrid.ItemsSource = FlightList;
 
-
+                string sorting = SortingPicker.SelectedItem.ToString();
+                switch (sorting)
+                {
+                    case "Date-Time":
+                        var dateSortedFlights = FlightList.OrderByDescending(f => f.FlightDt);
+                        FlightGrid.ItemsSource = dateSortedFlights;
+                        break;
+                    case "Base price":
+                        var priceSortedFlights = FlightList.OrderByDescending(f => f.BasePrice);
+                        FlightGrid.ItemsSource = priceSortedFlights;
+                        break;
+                    case "Confirmed":
+                        var confirmedSortedFlights = FlightList.OrderByDescending(f => f.Confirmed);
+                        FlightGrid.ItemsSource = confirmedSortedFlights;
+                        break;
+                }
+                
 
             }
         }
         private async void FlightSelected(object sender, EventArgs e)
         {
-
+            if (FlightGrid.SelectedItem != null)
+            {
+                EditBtn.IsEnabled = true;
+                CancelBtn.IsEnabled = true;
+                using(var db = new AirlineContext())
+                {
+                    FlightDTO flight = FlightGrid.SelectedItem as FlightDTO;
+                    var fl = await db.Schedules.FirstOrDefaultAsync(s => s.Id == flight.Id);
+                    if (fl.Confirmed)
+                    {
+                        CancelBtn.Text = "Cancel flight";
+                    } else
+                    {
+                        CancelBtn.Text = "Confirm flight";
+                    }
+                }
+            } else
+            {
+                EditBtn.IsEnabled = false;
+                CancelBtn.IsEnabled = false;
+                CancelBtn.Text = "Cancel flight";
+            }
         }
         private async void CancelFlight(object sender, EventArgs e)
         {
-
+            if (FlightGrid.SelectedItem != null)
+            {
+                FlightDTO flight = FlightGrid.SelectedItem as FlightDTO; 
+                using (var db = new AirlineContext())
+                {
+                    var fl = db.Schedules.FirstOrDefault(s => s.Id == flight.Id);
+                    fl.Confirmed = !fl.Confirmed;
+                    db.Update(fl);
+                    await db.SaveChangesAsync();
+                    LoadData(null, null);
+                }
+            }
         }
+
         private async void EditFlight(object sender, EventArgs e)
         {
-
+            if (FlightGrid.SelectedItem != null)
+            {
+                FlightDTO flight = FlightGrid.SelectedItem as FlightDTO;
+                using (var db = new AirlineContext())
+                {
+                    ShellNavigationQueryParameters parameters = new ShellNavigationQueryParameters()
+                    {
+                        { "flightId", flight.Id }
+                    };
+                    await Shell.Current.GoToAsync("EditFlightPage", parameters);
+                }
+            }
         }
+
         private async void ImportChanges(object sender, EventArgs e)
         {
+            await Shell.Current.GoToAsync("ImportPage");
+        }
 
+        public void ApplyQueryAttributes(IDictionary<string, object> query)
+        {
+            FillFilterData();
+            LoadData(null, null);
         }
 
 
@@ -194,15 +304,17 @@ namespace Session_2_Dennis_Hilfinger
 
         public class FlightDTO
         {
+            public int Id { get; set; }
             public DateOnly FlightDate { get; set; }
             public TimeOnly FlightTime { get; set; }
+            public DateTime FlightDt => new DateTime(FlightDate.Year, FlightDate.Month, FlightDate.Day, FlightTime.Hour, FlightTime.Minute, FlightTime.Second);
             public string DepartureAirport { get; set; }
             public string DestinationAirport { get; set; }
             public int FlightNumber { get; set; }
             public int Aircraft { get; set; }
             public int BasePrice { get; set; }
-            public int BusinessPrice => int.Parse((BasePrice * 1.35).ToString());
-            public int FirstClassPrice => int.Parse((BusinessPrice * 1.3).ToString());
+            public int BusinessPrice => (int)(BasePrice * 1.35);
+            public int FirstClassPrice => (int)(BusinessPrice * 1.3);
             public bool Confirmed { get; set; }
         }
 

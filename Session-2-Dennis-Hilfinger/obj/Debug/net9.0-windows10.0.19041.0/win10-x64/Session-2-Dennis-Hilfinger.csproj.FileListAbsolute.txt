@@ -330,7 +330,6 @@ C:\2_WorldSkills\Training\AbuDhabi_2017\WS-Skill09-Abu-Dhabi-Project-Session-2\E
 C:\2_WorldSkills\Training\AbuDhabi_2017\WS-Skill09-Abu-Dhabi-Project-Session-2\Executable\net9.0-windows10.0.19041.0\win10-x64\Microsoft.Windows.Widgets.winmd
 C:\2_WorldSkills\Training\AbuDhabi_2017\WS-Skill09-Abu-Dhabi-Project-Session-2\Executable\net9.0-windows10.0.19041.0\win10-x64\Microsoft.Windows.Workloads.winmd
 C:\2_WorldSkills\Training\AbuDhabi_2017\WS-Skill09-Abu-Dhabi-Project-Session-2\Executable\net9.0-windows10.0.19041.0\win10-x64\_runMe.exe
-C:\2_WorldSkills\Training\AbuDhabi_2017\WS-Skill09-Abu-Dhabi-Project-Session-2\Executable\net9.0-windows10.0.19041.0\win10-x64\Data\UserData.csv
 C:\2_WorldSkills\Training\AbuDhabi_2017\WS-Skill09-Abu-Dhabi-Project-Session-2\Executable\net9.0-windows10.0.19041.0\win10-x64\_runMe.deps.json
 C:\2_WorldSkills\Training\AbuDhabi_2017\WS-Skill09-Abu-Dhabi-Project-Session-2\Executable\net9.0-windows10.0.19041.0\win10-x64\_runMe.runtimeconfig.json
 C:\2_WorldSkills\Training\AbuDhabi_2017\WS-Skill09-Abu-Dhabi-Project-Session-2\Executable\net9.0-windows10.0.19041.0\win10-x64\_runMe.dll
@@ -442,3 +441,4 @@ C:\2_WorldSkills\Training\AbuDhabi_2017\WS-Skill09-Abu-Dhabi-Project-Session-2\S
 C:\2_WorldSkills\Training\AbuDhabi_2017\WS-Skill09-Abu-Dhabi-Project-Session-2\Session-2-Dennis-Hilfinger\obj\Debug\net9.0-windows10.0.19041.0\win10-x64\qualifiers.txt
 C:\2_WorldSkills\Training\AbuDhabi_2017\WS-Skill09-Abu-Dhabi-Project-Session-2\Session-2-Dennis-Hilfinger\obj\Debug\net9.0-windows10.0.19041.0\win10-x64\qualifiers.txt.intermediate
 C:\2_WorldSkills\Training\AbuDhabi_2017\WS-Skill09-Abu-Dhabi-Project-Session-2\Session-2-Dennis-Hilfinger\obj\Debug\net9.0-windows10.0.19041.0\win10-x64\MultipleQualifiersPerDimensionFound.txt
+C:\2_WorldSkills\Training\AbuDhabi_2017\WS-Skill09-Abu-Dhabi-Project-Session-2\Session-2-Dennis-Hilfinger\obj\Debug\net9.0-windows10.0.19041.0\win10-x64\Session-2-Dennis-Hilfinger.sourcelink.json

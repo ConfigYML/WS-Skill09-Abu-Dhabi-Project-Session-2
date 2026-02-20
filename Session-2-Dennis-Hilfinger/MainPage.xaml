@@ -152,7 +152,7 @@
                         <Label Text="{Binding DestinationAirport}" Style="{StaticResource HightlightedLabelStyle}" Grid.Column="3"/>
                         <Label Text="{Binding FlightNumber}" Style="{StaticResource HightlightedLabelStyle}" Grid.Column="4"/>
                         <Label Text="{Binding Aircraft}" Style="{StaticResource HightlightedLabelStyle}" Grid.Column="5"/>
-                        <Label Text="{Binding EconomyPrice}" Style="{StaticResource HightlightedLabelStyle}" Grid.Column="6"/>
+                        <Label Text="{Binding BasePrice}" Style="{StaticResource HightlightedLabelStyle}" Grid.Column="6"/>
                         <Label Text="{Binding BusinessPrice}" Style="{StaticResource HightlightedLabelStyle}" Grid.Column="7"/>
                         <Label Text="{Binding FirstClassPrice}" Style="{StaticResource HightlightedLabelStyle}" Grid.Column="8"/>
                     </Grid>

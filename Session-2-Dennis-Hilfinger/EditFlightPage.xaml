@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Session_2_Dennis_Hilfinger.EditFlightPage"
+             Title="EditFlightPage">
+    <VerticalStackLayout Spacing="20"
+                         Margin="0, 50, 0, 0">
+        <HorizontalStackLayout
+            VerticalOptions="Center"
+            HorizontalOptions="Center"
+            Spacing="50">
+            <Label
+                Text="From:"
+                VerticalOptions="Center" />
+            <Label
+                x:Name="DepartureLabel"
+                VerticalOptions="Center"
+                WidthRequest="150"/>
+            <Label
+                Text="To:"
+                VerticalOptions="Center" />
+            <Label
+                x:Name="DestinationLabel"
+                VerticalOptions="Center"
+                WidthRequest="150"/>
+        </HorizontalStackLayout>
+        <HorizontalStackLayout
+            VerticalOptions="Center"
+            HorizontalOptions="Center"
+            Spacing="50">
+            <Label
+                Text="Date:"
+                VerticalOptions="Center" />
+            <DatePicker
+                x:Name="DatePicker"
+                VerticalOptions="Center"
+                WidthRequest="150"/>
+            <Label
+                Text="Time:"
+                VerticalOptions="Center" />
+            <TimePicker
+                x:Name="TimePicker"
+                VerticalOptions="Center"
+                WidthRequest="200"/>
+            <Label
+                Text="Economy price: $"
+                VerticalOptions="Center" />
+            <Entry
+                x:Name="EconomyPriceEntry"
+                VerticalOptions="Center"
+                WidthRequest="100"/>
+        </HorizontalStackLayout>
+        <HorizontalStackLayout
+            VerticalOptions="Center"
+            HorizontalOptions="Center"
+            Spacing="50">
+            <Button
+                Text="Save"
+                VerticalOptions="Center"
+                HorizontalOptions="Center"
+                Clicked="Save"
+                WidthRequest="150"
+                HeightRequest="50"/>
+
+            <Button
+                Text="Cancel"
+                VerticalOptions="Center"
+                HorizontalOptions="Center"
+                Clicked="Cancel"
+                WidthRequest="150"
+                HeightRequest="50"/>
+        </HorizontalStackLayout>
+    </VerticalStackLayout>
+</ContentPage>

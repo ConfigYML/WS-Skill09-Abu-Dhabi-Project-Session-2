@@ -5,6 +5,8 @@
         public AppShell()
         {
             InitializeComponent();
+            Routing.RegisterRoute(nameof(EditFlightPage), typeof(EditFlightPage));
+            Routing.RegisterRoute(nameof(ImportPage), typeof(ImportPage));
         }
     }
 }
