@@ -6,6 +6,11 @@
     <VerticalStackLayout
         Spacing="20"
         Margin="0, 50, 0, 0">
+        <Button
+            Text="Cancel"
+            Clicked="Cancel"
+            WidthRequest="150"
+            HeightRequest="50"/>
         <Label
             Text="Please select the file you would like to import below"
             FontSize="20"
@@ -28,6 +33,52 @@
                 Text="Import"
                 WidthRequest="150"
                 HeightRequest="50"/>
+        </HorizontalStackLayout>
+        <HorizontalStackLayout
+            Margin="0, 50, 0, 0"
+            Spacing="25"
+            VerticalOptions="Center"
+            HorizontalOptions="Center"
+            WidthRequest="400">
+            <Label
+                Text="Successful changes:"
+                FontSize="20"
+                HorizontalOptions="Center" />
+            <Label
+                x:Name="SuccessfulChangesLabel"
+                HorizontalOptions="End"
+                VerticalOptions="Center"
+                Text="0"/>
+        </HorizontalStackLayout>
+        <HorizontalStackLayout
+            Spacing="25"
+            VerticalOptions="Center"
+            HorizontalOptions="Center"
+            WidthRequest="400">
+            <Label
+                Text="Duplicate values:"
+                FontSize="20"
+                HorizontalOptions="Center" />
+            <Label
+                x:Name="DuplicateValuesLabel"
+                HorizontalOptions="End"
+                VerticalOptions="Center"
+                Text="0"/>
+        </HorizontalStackLayout>
+        <HorizontalStackLayout
+            Spacing="25"
+            VerticalOptions="Center"
+            HorizontalOptions="Center"
+            WidthRequest="400">
+            <Label
+                Text="Incomplete entries:"
+                FontSize="20"
+                HorizontalOptions="Center" />
+            <Label
+                x:Name="IncompleteEntriesLabel"
+                HorizontalOptions="End"
+                VerticalOptions="Center"
+                Text="0"/>
         </HorizontalStackLayout>
     </VerticalStackLayout>
 </ContentPage>

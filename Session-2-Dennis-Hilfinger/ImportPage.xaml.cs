@@ -1,7 +1,12 @@
+using Microsoft.EntityFrameworkCore;
+
 namespace Session_2_Dennis_Hilfinger;
 
 public partial class ImportPage : ContentPage
 {
+	int correctCount;
+	int duplicateCount;
+	int incompleteCount;
 	public ImportPage()
 	{
 		InitializeComponent();
@@ -32,37 +37,172 @@ public partial class ImportPage : ContentPage
 			return;
 		}
 
+		correctCount = 0;
+		duplicateCount = 0;
+		incompleteCount = 0;
+
 		var lines = await File.ReadAllLinesAsync(PathEntry.Text);
-		foreach( var line in lines)
+		using (var db = new AirlineContext())
 		{
-			var values = line.Split(',');
-			if (values[0] == "ADD")
+			foreach (var line in lines)
 			{
-				try
+				var values = line.Split(',');
+				if (values[0] == "ADD")
 				{
-                    using (var db = new AirlineContext())
-                    {
-                        DateOnly flightDate = DateOnly.Parse(values[1]);
-                        TimeOnly flightTime = TimeOnly.Parse(values[2]);
-                        string flightNumber = values[3];
-						db.Schedules.Add(new Schedule
+					try
+					{
+
+						DateOnly flightDate = DateOnly.Parse(values[1]);
+						TimeOnly flightTime = TimeOnly.Parse(values[2]);
+						string flightNumber = values[3];
+						string departureIata = values[4];
+						string arrivalIata = values[5];
+						int aircraft = int.Parse(values[6]);
+						decimal basePrice = decimal.Parse(values[7]);
+						bool confirmed;
+						if (values[8] == "OK")
+						{
+							confirmed = true;
+						}
+						else if (values[8] == "CANCELLED")
+						{
+							confirmed = false;
+						}
+						else
+						{
+							throw new Exception();
+						}
+
+						var departureAirport = db.Airports.FirstOrDefault(a => a.Iatacode == departureIata);
+						var arrivalAirport = db.Airports.FirstOrDefault(a => a.Iatacode == arrivalIata);
+
+						if (departureAirport == null || arrivalAirport == null)
+						{
+							throw new Exception();
+						}
+
+						Schedule sched = new Schedule
 						{
 							Date = flightDate,
 							Time = flightTime,
-							FlightNumber = flightNumber
+							FlightNumber = flightNumber,
+							AircraftId = aircraft,
+							EconomyPrice = basePrice,
+							Confirmed = confirmed
+						};
 
-						});
-                    }
-                } catch
-				{
-					await DisplayAlert("Error", $"Error in line: \n{line}\nPlease review.", "Ok");
+
+						if (db.Schedules.Any(s => s.Date == sched.Date && s.FlightNumber == sched.FlightNumber))
+						{
+							duplicateCount++;
+							DisplayAlert("Duplicate entry", $"A schedule with the flight number {sched.FlightNumber} on the date {sched.Date} already exists in the database. This entry will be skipped.", "OK");
+                        }
+						else
+						{
+							var existantRoute = db.Routes.FirstOrDefault(r => r.ArrivalAirportId == arrivalAirport.Id && r.DepartureAirportId == departureAirport.Id);
+							if (existantRoute == null)
+							{
+								int highestRouteId = db.Routes.Max(r => r.Id);
+								Route route = new Route
+								{
+									Id = highestRouteId + 1,
+									ArrivalAirportId = arrivalAirport.Id,
+									DepartureAirportId = departureAirport.Id
+								};
+								db.Routes.Add(route);
+								await db.SaveChangesAsync();
+								sched.RouteId = route.Id;
+
+							}
+							else
+							{
+								sched.RouteId = existantRoute.Id;
+							}
+
+							db.Schedules.Add(sched);
+							await db.SaveChangesAsync();
+							correctCount++;
+						}
+
+					}
+					catch
+					{
+						incompleteCount++;
+					}
+
 				}
-				
-			} else if (values[0] == "EDIT")
-			{
-				// TODO: implement edit logic
+				else if (values[0] == "EDIT")
+				{
+					var scheduleToEdit = db.Schedules
+						.Include(s => s.Route)
+                        .FirstOrDefault(s => s.FlightNumber == values[3] && s.Date == DateOnly.Parse(values[1]));
+					if (scheduleToEdit != null)
+					{
+						try
+						{
+							scheduleToEdit.Date = DateOnly.Parse(values[1]);
+                            scheduleToEdit.Time = TimeOnly.Parse(values[2]);
+							scheduleToEdit.FlightNumber = values[3];
+                            scheduleToEdit.AircraftId = int.Parse(values[6]);
+							scheduleToEdit.EconomyPrice = decimal.Parse(values[7]);
+							if (values[8] == "OK")
+							{
+								scheduleToEdit.Confirmed = true;
+							}
+							else if (values[8] == "CANCELLED")
+							{
+								scheduleToEdit.Confirmed = false;
+							}
+							else
+							{
+								throw new Exception();
+							}
+
+							var route = scheduleToEdit.Route;
+                            var departureAirport = db.Airports.FirstOrDefault(a => a.Iatacode == values[4]);
+							var arrivalAirport = db.Airports.FirstOrDefault(a => a.Iatacode == values[5]);
+
+                            if (route == null || departureAirport == null || arrivalAirport == null)
+                            {
+                                throw new Exception();
+                            }
+                            route.DepartureAirportId = departureAirport.Id;
+							route.ArrivalAirportId = arrivalAirport.Id;
+
+							db.Routes.Update(route);
+                            db.Schedules.Update(scheduleToEdit);
+							await db.SaveChangesAsync();
+							correctCount++;
+						}
+						catch
+						{
+							incompleteCount++;
+						}
+					}
+					else
+					{
+						incompleteCount++;
+                    }
+                }
+				else
+				{
+					incompleteCount++;
+				}
 			}
 		}
 
+		SuccessfulChangesLabel.Text = correctCount.ToString();
+		DuplicateValuesLabel.Text = duplicateCount.ToString();
+		IncompleteEntriesLabel.Text = incompleteCount.ToString();
+
+    }
+
+	private async void Cancel(object sender, EventArgs e)
+	{
+		ShellNavigationQueryParameters parameters = new ShellNavigationQueryParameters()
+		{
+			{ "Testing", "test" }
+		};
+        await Shell.Current.GoToAsync("..", parameters);
     }
 }
